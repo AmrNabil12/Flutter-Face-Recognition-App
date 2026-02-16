@@ -84,13 +84,12 @@ pairs/
 results.txt
 
 # =========================
-# Local datasets & large checkpoints
-# Keep repository GitHub-friendly (avoid >100MB files)
+# Local datasets (keep local)
 # =========================
 test_images/
-weights/*.pt
-weights/*.pth
-weights/*.bin
+
+# Note:
+# weights/ files are intentionally tracked via Git LFS.
 
 # Optional local experiment files
 *.sqlite3
