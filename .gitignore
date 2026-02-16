@@ -1,0 +1,97 @@
+# =========================
+# OS / Editor
+# =========================
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+*.tmp
+*.swp
+*.swo
+*.orig
+
+# VS Code / JetBrains / Visual Studio
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.hypothesis/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+dist/
+site/
+.eggs/
+*.egg-info/
+pip-wheel-metadata/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment variables / secrets
+.env
+.env.*
+*.pem
+*.key
+
+# =========================
+# Flutter / Dart
+# =========================
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub/
+.pub-cache/
+coverage/
+build/
+**/build/
+android/.gradle/
+android/.kotlin/
+android/local.properties
+android/captures/
+windows/flutter/ephemeral/
+linux/flutter/ephemeral/
+macos/Flutter/ephemeral/
+ios/Flutter/ephemeral/
+
+# =========================
+# Project runtime outputs
+# =========================
+RawImages/
+pairs/
+results.txt
+
+# =========================
+# Local datasets & large checkpoints
+# Keep repository GitHub-friendly (avoid >100MB files)
+# =========================
+test_images/
+weights/*.pt
+weights/*.pth
+weights/*.bin
+
+# Optional local experiment files
+*.sqlite3
+*.db

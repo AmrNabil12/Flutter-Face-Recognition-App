@@ -1,0 +1,12 @@
+# Core ML / image processing
+torch
+torchvision
+numpy
+Pillow
+requests
+facenet-pytorch
+
+# API backend
+fastapi
+uvicorn[standard]
+python-multipart
