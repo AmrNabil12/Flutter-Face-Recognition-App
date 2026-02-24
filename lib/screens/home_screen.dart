@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import '../services/face_recognition_service.dart';
 import 'results_screen.dart';
 
@@ -22,6 +23,9 @@ class _HomeScreenState extends State<HomeScreen> {
   List<File> _mobileImages = [];
   bool _isProcessing = false;
   String _statusMessage = '';
+
+  bool get _supportsCameraCapture =>
+      !kIsWeb && (Platform.isAndroid || Platform.isIOS);
 
   @override
   void initState() {
@@ -75,6 +79,67 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       setState(() {
         _statusMessage = 'Error picking images: $e';
+      });
+    }
+  }
+
+  Future<void> _captureImageFromCamera() async {
+    try {
+      if (!_supportsCameraCapture) {
+        if (!mounted) return;
+        setState(() {
+          _statusMessage = 'Camera capture is supported on Android/iOS only.';
+        });
+        return;
+      }
+
+      final cameraPermission = await Permission.camera.request();
+      if (!cameraPermission.isGranted) {
+        if (!mounted) return;
+        setState(() {
+          _statusMessage = 'Camera permission is required to capture images.';
+        });
+        return;
+      }
+
+      final image = await _imagePicker.pickImage(source: ImageSource.camera);
+
+      if (image == null) {
+        return;
+      }
+
+      setState(() {
+        _statusMessage = 'Saving captured image...';
+      });
+
+      final imageFile = File(image.path);
+
+      if (FaceRecognitionService.supportsLocalProcessing) {
+        await _service.saveImageToRawImages(imageFile);
+        await _loadExistingImages();
+      } else {
+        setState(() {
+          _mobileImages.add(imageFile);
+        });
+      }
+
+      if (!mounted) return;
+
+      setState(() {
+        _statusMessage = 'Image captured successfully!';
+      });
+
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          setState(() {
+            _statusMessage = '';
+          });
+        }
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _statusMessage = 'Error capturing image: $e';
       });
     }
   }
@@ -347,7 +412,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Tap the button below to add images',
+                          'Tap the buttons below to add images',
                           style: TextStyle(
                             color: Colors.grey.shade500,
                           ),
@@ -412,20 +477,39 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ],
             ),
-            child: Row(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _isProcessing ? null : _pickImages,
-                    icon: const Icon(Icons.add_photo_alternate),
-                    label: const Text('Add Images'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _isProcessing ? null : _pickImages,
+                        icon: const Icon(Icons.add_photo_alternate),
+                        label: const Text('Gallery'),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _isProcessing || !_supportsCameraCapture
+                            ? null
+                            : _captureImageFromCamera,
+                        icon: const Icon(Icons.photo_camera),
+                        label: const Text('Camera'),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 16),
-                Expanded(
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: _isProcessing ||
                             (FaceRecognitionService.supportsLocalProcessing
